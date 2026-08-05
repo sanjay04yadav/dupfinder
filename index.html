@@ -4,170 +4,234 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DupFinder — Find every duplicate. Trust every delete.</title>
-<meta name="description" content="DupFinder finds duplicate, similar, blurry, and oversized photos, videos, and files on your iPhone — entirely on-device. Free. No subscription. No uploads. Ever.">
-<style>
-  :root {
-    --accent: #2e7ff8;
-    --accent-dark: #0a38a0;
-    --bg: #ffffff;
-    --fg: #16181d;
-    --muted: #5b6472;
-    --card: #f3f5f8;
-    --border: #e2e6ec;
-    --good: #1d9d5f;
-    --bad: #c74440;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #101216;
-      --fg: #eef1f5;
-      --muted: #9aa4b2;
-      --card: #1a1e25;
-      --border: #2a303a;
-    }
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg); color: var(--fg); line-height: 1.6;
-  }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
-  header.hero { text-align: center; padding: 72px 0 56px; }
-  .app-icon {
-    width: 96px; height: 96px; border-radius: 22px; margin: 0 auto 24px;
-    background: linear-gradient(180deg, #2e80fa 0%, #0a38a0 100%);
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 12px 32px rgba(30, 90, 220, .35);
-  }
-  .app-icon svg { width: 52px; height: 52px; fill: #fff; }
-  h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.15; letter-spacing: -0.02em; }
-  .tagline { font-size: 1.2rem; color: var(--muted); margin: 16px auto 8px; max-width: 620px; }
-  .motto { font-weight: 700; color: var(--accent); letter-spacing: .06em; text-transform: uppercase; font-size: .85rem; margin-bottom: 28px; }
-  .cta {
-    display: inline-block; background: var(--accent); color: #fff; text-decoration: none;
-    font-weight: 700; padding: 14px 30px; border-radius: 14px; font-size: 1.05rem;
-    box-shadow: 0 8px 22px rgba(46,127,248,.35);
-  }
-  .cta.secondary { background: transparent; color: var(--accent); box-shadow: none; border: 1.5px solid var(--accent); margin-left: 10px; }
-  .cta-note { color: var(--muted); font-size: .85rem; margin-top: 14px; }
-  .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 28px 0 0; }
-  .badge {
-    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: 6px 16px; font-size: .85rem; font-weight: 600; color: var(--muted);
-  }
-  section { padding: 56px 0; border-top: 1px solid var(--border); }
-  h2 { font-size: 1.7rem; letter-spacing: -0.01em; margin-bottom: 8px; }
-  .lead { color: var(--muted); max-width: 640px; margin-bottom: 32px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
-  .card h3 { font-size: 1.02rem; margin-bottom: 6px; }
-  .card p { font-size: .92rem; color: var(--muted); }
-  .card .emoji { font-size: 1.5rem; display: block; margin-bottom: 10px; }
-  table { width: 100%; border-collapse: collapse; font-size: .95rem; }
-  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
-  td.yes { color: var(--good); font-weight: 700; }
-  td.no { color: var(--bad); font-weight: 700; }
-  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 16px; }
-  .hash {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8rem;
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px 16px; overflow-x: auto; white-space: nowrap; color: var(--accent); margin-top: 14px;
-  }
-  details { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 10px; }
-  summary { font-weight: 700; cursor: pointer; }
-  details p { margin-top: 10px; color: var(--muted); font-size: .95rem; }
-  footer { padding: 40px 0 60px; border-top: 1px solid var(--border); color: var(--muted); font-size: .88rem; text-align: center; }
-  footer a { color: var(--accent); text-decoration: none; }
-  .honest { border-left: 4px solid var(--accent); padding-left: 20px; }
-</style>
+<meta name="description" content="DupFinder finds duplicate, similar, blurry, and oversized photos, videos, and files on your iPhone — entirely on-device. Free forever. No subscription. No tracking. No uploads. Ever.">
+<link rel="alternate" hreflang="de" href="https://sanjay04yadav.github.io/dupfinder/de/">
+<link rel="alternate" hreflang="en" href="https://sanjay04yadav.github.io/dupfinder/">
+<link rel="stylesheet" href="style.css">
+<script>
+  (function () {
+    try {
+      var pref = localStorage.getItem("df-lang");
+      if (pref === "en") return;
+      if (pref === "de" || (navigator.language || "").toLowerCase().indexOf("de") === 0) {
+        if (location.pathname.indexOf("/de/") === -1) location.replace("de/");
+      }
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
+<div class="aurora" aria-hidden="true"></div>
 
-<div class="wrap">
-  <header class="hero">
-    <div class="app-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"/></svg>
+<nav>
+  <div class="nav-inner">
+    <a class="brand" href="#">
+      <span class="mark"><svg viewBox="0 0 24 24"><path d="M16 1H6a2 2 0 0 0-2 2v12h2V3h10V1zm3 4H10a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16h-9V7h9v14z"/></svg></span>
+      DupFinder
+    </a>
+    <div class="nav-links">
+      <a href="#story">Story</a>
+      <a href="#features">Features</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-cta" href="https://testflight.apple.com/join/9675T9D4">Get the beta</a>
     </div>
-    <h1>Find every duplicate.<br>Trust every delete.</h1>
-    <p class="tagline">DupFinder clears duplicate, similar, blurry, and oversized photos, videos, and files from your iPhone — entirely on your device.</p>
-    <p class="motto">Transparent · Exact · Local</p>
-    <a class="cta" href="https://testflight.apple.com/join/9675T9D4">Join the free beta</a>
-    <p class="cta-note">Free on TestFlight now · App Store release coming soon · iOS 17+</p>
-    <div class="badges">
-      <span class="badge">💯 Free — no subscription</span>
-      <span class="badge">🔒 Zero network access</span>
-      <span class="badge">🧾 Verifiable results</span>
+    <div class="nav-lang">
+      <span>EN</span>
+      <a href="de/" onclick="try{localStorage.setItem('df-lang','de')}catch(e){}">DE</a>
     </div>
-  </header>
+  </div>
+</nav>
 
-  <section>
-    <h2>Everything the paid cleaners do. Nothing they shouldn't.</h2>
-    <p class="lead">Seven tools, one app, no weekly subscription.</p>
-    <div class="grid">
-      <div class="card"><span class="emoji">🎯</span><h3>Exact duplicates</h3><p>Every photo, video, and file compared by SHA-256 content fingerprint. A match means byte-for-byte identical — never a guess.</p></div>
-      <div class="card"><span class="emoji">🪞</span><h3>Similar shots</h3><p>On-device visual analysis groups retakes and bursts. Adjustable sensitivity re-groups instantly; swipe mode for fast review.</p></div>
-      <div class="card"><span class="emoji">📸</span><h3>Screenshots</h3><p>iOS tags screenshots natively, so the grid is exact. One-tap smart selects like “older than 1 month.”</p></div>
-      <div class="card"><span class="emoji">🌫️</span><h3>Blurry photos</h3><p>Every photo gets a sharpness score. Review the blurriest first, clear them in bulk.</p></div>
-      <div class="card"><span class="emoji">🐘</span><h3>Large files</h3><p>Biggest media first. Compress oversized videos, convert Live Photos to stills — with an honest report of the savings.</p></div>
-      <div class="card"><span class="emoji">📁</span><h3>Files &amp; iCloud Drive</h3><p>Pick any folder from the Files app and run the same exact-match engine on documents and downloads.</p></div>
-      <div class="card"><span class="emoji">↩️</span><h3>Safe by default</h3><p>Deletions go to Recently Deleted — recoverable for 30 days. Every result is verified and reported: “deleted 200 of 200,” or the real reason why not.</p></div>
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>Free beta open · App Store release soon</span>
+      <h1>Find every duplicate.<br><span class="grad">Trust every delete.</span></h1>
+      <p class="tagline">DupFinder clears duplicate, similar, blurry, and oversized photos, videos, and files from your iPhone — entirely on your device. Free forever. No subscription. No tracking.</p>
+      <div class="cta-row">
+        <a class="cta" href="https://testflight.apple.com/join/9675T9D4">Join the free beta</a>
+        <a class="cta ghost" href="#story">Why it's free →</a>
+      </div>
+      <p class="cta-note">iOS 17+ · installs in two taps via TestFlight</p>
     </div>
-  </section>
 
-  <section>
-    <h2>Proof, not promises</h2>
-    <p class="lead">Other cleaners say “similar-looking.” DupFinder shows you the actual content hash of every duplicate group — the same fingerprint professionals use to verify file integrity. Same hash, same file. You can check it yourself.</p>
-    <div class="hash">SHA-256 · 0134abe24cd7ad30d8b0857ecf44222262f010194c188c4fca2ac4bae49dd943 — 3 identical copies · 6.2 MB recoverable</div>
-  </section>
+    <div class="phone-stage reveal">
+      <div class="phone">
+        <div class="screen">
+          <picture>
+            <source srcset="assets/exact_dark.png" media="(prefers-color-scheme: dark)">
+            <img src="assets/exact_light.png" width="1206" height="2622"
+                 alt="DupFinder's Photo Duplicates screen: 4.9 MB reclaimable in 9 duplicate groups, each group labeled with its SHA-256 content hash">
+          </picture>
+        </div>
+      </div>
+      <div class="chip-float chip-a">✓ Verified deletes<small>recoverable for 30 days</small></div>
+      <div class="chip-float chip-b">SHA-256 matched<small>byte-for-byte identical</small></div>
+    </div>
+  </div>
 
-  <section>
-    <h2>Private because it can't be otherwise</h2>
-    <p class="lead">DupFinder contains no networking code. Not “we don't share your data” — the app is physically incapable of sending it. No accounts, no analytics, no ads, no uploads. Its App Store privacy label reads “Data Not Collected,” and its privacy policy is one honest paragraph.</p>
-    <div class="honest">
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><b>0 bytes</b><small>of your data collected — ever</small></div>
+      <div class="stat"><b>$0</b><small>forever · no subscription</small></div>
+      <div class="stat"><b>7 tools</b><small>duplicates to compression</small></div>
+      <div class="stat"><b>30 days</b><small>every delete recoverable</small></div>
+    </div>
+  </div>
+</header>
+
+<section id="story">
+  <div class="wrap">
+    <p class="sec-kicker" style="text-align:center">A note from the person who built this</p>
+    <h2 style="text-align:center; margin-bottom:34px">Why this app exists — and why it's free</h2>
+    <div class="letter reveal">
+      <p>Last year I started making videos — teaching myself content production, shooting take after take after take. My iPhone was permanently full. Right when I wanted to film, right when something worth capturing happened: <em>Storage Almost Full.</em></p>
+      <p>So I did what everyone does — I looked at cleaner apps. Every single one wanted $5–10 a month, or my data, or both. To delete files. On my own phone. <span class="aside">We're all paying for enough subscriptions already — and if you're also paying for Tinder, honestly, that's expensive enough.</span></p>
+      <p>I've built software for 14 years. I grew up in India and have lived in Berlin for more than a decade, where I lead technology at a company. So I spent my evenings building the cleaner I wanted: one that runs entirely on your phone. <strong>No servers, no accounts, no data collection — which is exactly why it can be free. It costs me nothing to run, so it costs you nothing to use.</strong></p>
+      <p>And one thing I can't ignore: back home in India, a lot of people pay for their iPhone in monthly installments — to banks, sometimes to money lenders. Someone who is still paying off their phone should not pay again every month just to manage its storage. Not in India, not in Germany, not anywhere.</p>
+      <p>DupFinder isn't magic, and it doesn't pretend to be. It does what's honestly possible on an iPhone: finds exact duplicates with mathematical proof, groups similar shots, scores blurry photos, compresses heavy videos. The rest is in your hands — and your photos never leave your phone, because there is nothing in this app that could ever send them anywhere.</p>
+      <div class="sig">
+        <span class="ava">S</span>
+        <span><b>Sanjay</b><small>Engineer · Berlin, via India</small></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="sec-kicker">Seven tools, one app</p>
+    <h2>Everything the paid cleaners do.<br>Nothing they shouldn't.</h2>
+    <p class="lead">Every scan runs on your iPhone's own chip. Nothing is uploaded, because nothing can be.</p>
+    <div class="bento reveal">
+      <div class="b-card hero-card">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 4H6a2 2 0 0 0-2 2v10"/></svg></span>
+        <h3>Exact duplicates — with proof</h3>
+        <p>Every photo, video, and file compared by SHA-256 content fingerprint. A match means byte-for-byte identical — never a guess. Tap any group and see the hash yourself.</p>
+        <div class="proof">SHA-256 · 7a22113996bc… · 3 copies · 674 KB each</div>
+      </div>
+      <div class="b-card hero-card">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M7 4h10"/><circle cx="9" cy="12" r="1.4"/><path d="M4 17l5-4 4 3 3-2 4 3"/></svg></span>
+        <h3>Similar shots</h3>
+        <p>On-device visual analysis groups retakes and bursts. Adjustable sensitivity re-groups instantly, and swipe mode makes review fast — keep the best, clear the rest.</p>
+      </div>
+      <div class="b-card">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <h3>Screenshots</h3>
+        <p>iOS tags screenshots natively, so the grid is exact. Smart selects like “older than 1 month.”</p>
+      </div>
+      <div class="b-card">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3s6 6.3 6 10a6 6 0 0 1-12 0c0-3.7 6-10 6-10z"/><path d="M9.5 13.5a2.5 2.5 0 0 0 2.5 2.5"/></svg></span>
+        <h3>Blurry photos</h3>
+        <p>Every photo gets a sharpness score. Review the blurriest first, clear them in bulk.</p>
+      </div>
+      <div class="b-card">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 12l2.2-6a2 2 0 0 1 1.9-1.4h7.8a2 2 0 0 1 1.9 1.4L20 12"/><rect x="4" y="12" width="16" height="7" rx="2"/><path d="M8 15.5h.01"/><path d="M12 15.5h4"/></svg></span>
+        <h3>Large files</h3>
+        <p>Biggest media first. Compress videos, convert Live Photos — with an honest savings report.</p>
+      </div>
+      <div class="b-card wide">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+        <h3>Files &amp; iCloud Drive</h3>
+        <p>Pick any folder from the Files app and run the same exact-match engine on documents and downloads — the tool almost no cleaner offers.</p>
+      </div>
+      <div class="b-card wide">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 14l-4-4 4-4"/><path d="M5 10h9a5 5 0 0 1 0 10h-3"/></svg></span>
+        <h3>Safe by default</h3>
+        <p>Deletions go to Recently Deleted — recoverable for 30 days. Every result is verified and reported: “deleted 200 of 200,” or the real reason why not.</p>
+      </div>
+    </div>
+
+    <div class="shots reveal" style="margin-top:20px">
+      <div class="shot"><figure>
+        <div class="frame"><img src="assets/home_light.png" loading="lazy" alt="DupFinder home dashboard showing the iPhone storage breakdown and scan results"></div>
+        <figcaption><b>The dashboard</b> — honest storage breakdown</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <div class="frame"><img src="assets/large_light.png" loading="lazy" alt="Large Files screen listing the biggest videos and photos first"></div>
+        <figcaption><b>Large files</b> — biggest first, compress in place</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <div class="frame"><img src="assets/home_dark.png" loading="lazy" alt="DupFinder home dashboard in dark mode"></div>
+        <figcaption><b>Dark mode</b> — first-class, not an afterthought</figcaption>
+      </figure></div>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <p class="sec-kicker">Check the labels yourself</p>
+    <h2>What the other cleaner apps collect.<br>And what we don't.</h2>
+    <p class="lead">These are the official App Privacy labels from the App Store — each app's own declaration to Apple. Verifying takes ten seconds on any store page.</p>
+    <div class="table-card reveal">
+      <div class="table-scroll">
+        <table>
+          <tr><th>App</th><th>Their privacy label</th><th>Price</th></tr>
+          <tr><td>Typical “cleaner” app A</td><td class="no">Tracks you across other apps · ads · device IDs</td><td class="no">$4.99 / week</td></tr>
+          <tr><td>Typical “cleaner” app B</td><td class="no">Tracks you · identifiers &amp; usage data for advertisers</td><td class="no">$36–96 / year</td></tr>
+          <tr><td>The “nice” free one</td><td class="warn">No tracking, but analytics &amp; diagnostics collected</td><td class="yes">Free</td></tr>
+          <tr class="self"><td><strong>DupFinder</strong></td><td class="yes">“Data Not Collected” — nothing. Zero.</td><td class="yes">Free forever</td></tr>
+        </table>
+      </div>
+    </div>
+    <p class="table-note">Independent research found 100% of reviewed phone-cleaner apps share user data with third parties, and 90% share device identifiers. DupFinder can't — it contains no networking code at all.</p>
+
+    <div class="honest reveal" style="margin-top:34px">
       <h3 style="margin-bottom:6px">The honesty clause</h3>
-      <p style="color:var(--muted); font-size:.95rem">No iPhone app can clear other apps' caches or “boost” your phone — iOS forbids it. Apps claiming otherwise are showing animations. DupFinder tells you what actually frees space, and does the part an app truly can: your photos, videos, and files.</p>
+      <p style="color:var(--muted); font-size:.95rem">No iPhone app can clear other apps' caches or “boost” your phone — iOS forbids it. Apps claiming otherwise are showing animations. DupFinder tells you what actually frees space, and does the part an app truly can: your photos, videos, and files. The rest is in your hands.</p>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section>
-    <h2>DupFinder vs. the typical cleaner app</h2>
-    <div class="table-scroll">
-      <table>
-        <tr><th></th><th>DupFinder</th><th>Typical cleaner apps</th></tr>
-        <tr><td>Price</td><td class="yes">Free</td><td class="no">$4–8 per week</td></tr>
-        <tr><td>Exact duplicate proof (hashes)</td><td class="yes">Yes</td><td class="no">No</td></tr>
-        <tr><td>Similar, blurry &amp; screenshot cleanup</td><td class="yes">Yes</td><td>Yes</td></tr>
-        <tr><td>Video compression &amp; Live Photo convert</td><td class="yes">Yes</td><td>Sometimes</td></tr>
-        <tr><td>Files &amp; iCloud Drive scanning</td><td class="yes">Yes</td><td class="no">Rarely</td></tr>
-        <tr><td>Network access</td><td class="yes">None — provable</td><td class="no">Analytics &amp; ads SDKs</td></tr>
-        <tr><td>Fake “boost” / cache-clean claims</td><td class="yes">Never</td><td class="no">Often</td></tr>
-      </table>
-    </div>
-  </section>
-
-  <section>
+<section id="faq">
+  <div class="wrap">
+    <p class="sec-kicker">No fine print</p>
     <h2>Questions, answered straight</h2>
-    <details><summary>Is it really free?</summary><p>Yes. No subscription, no locked features, no ads. It began as a personal tool and stays free.</p></details>
-    <details><summary>Can deleted photos be recovered?</summary><p>Yes — every deletion goes through iOS's own confirmation and lands in Recently Deleted, where it's recoverable for about 30 days.</p></details>
-    <details><summary>What does “similar” mean vs. “exact”?</summary><p>Exact = identical file content, proven by SHA-256 hash. Similar = visually near-identical retakes and bursts found by on-device analysis — clearly separated in the app so you always know which is which.</p></details>
-    <details><summary>Does anything leave my phone?</summary><p>No. The app has no networking code, so scanning, analysis, and deletion all happen on your device. There is nothing to opt out of because nothing is collected.</p></details>
-    <details><summary>Which iPhones does it support?</summary><p>iPhone running iOS 17 or later.</p></details>
-  </section>
+    <p class="lead"></p>
+    <div class="reveal">
+      <details><summary>Is it really free? What's the catch?</summary><p>Free forever, no catch — and here's why that's believable: the app has no servers, no cloud, no compute costs. Everything runs on your phone, so there is nothing for anyone to pay for. It cost a few weeks of one engineer's work, and that's already paid.</p></details>
+      <details><summary>Who built this?</summary><p>One engineer — Sanjay, 14 years in tech, grew up in India, based in Berlin for over a decade. Not an anonymous app studio: a person with a name, who uses the app on his own phone every week.</p></details>
+      <details><summary>Can deleted photos be recovered?</summary><p>Yes — every deletion goes through iOS's own confirmation and lands in Recently Deleted, where it's recoverable for about 30 days.</p></details>
+      <details><summary>What does “similar” mean vs. “exact”?</summary><p>Exact = identical file content, proven by SHA-256 hash. Similar = visually near-identical retakes and bursts found by on-device analysis — clearly separated in the app so you always know which is which.</p></details>
+      <details><summary>Does anything leave my phone?</summary><p>No. The app has no networking code, so scanning, analysis, and deletion all happen on your device. There is nothing to opt out of because nothing is collected.</p></details>
+      <details><summary>Which iPhones does it support?</summary><p>iPhone running iOS 17 or later.</p></details>
+    </div>
 
-  <section style="text-align:center; border-top:none">
-    <h2>Reclaim your storage today</h2>
-    <p class="lead" style="margin:8px auto 24px">Free beta, open now — install in two taps.</p>
-    <a class="cta" href="https://testflight.apple.com/join/9675T9D4">Join the free beta</a>
-  </section>
-</div>
+    <div class="final reveal">
+      <h2>Reclaim your storage today</h2>
+      <p class="lead" style="margin:8px auto 24px; max-width:none">Free beta, open now — install in two taps.</p>
+      <a class="cta" href="https://testflight.apple.com/join/9675T9D4">Join the free beta</a>
+    </div>
+  </div>
+</section>
 
 <footer>
   <div class="wrap">
-    DupFinder · Made in Berlin · <a href="https://sanjay04yadav.github.io/dupfinder-privacy/">Privacy Policy</a><br>
+    DupFinder · Made in Berlin · <a href="https://sanjay04yadav.github.io/dupfinder-privacy/">Privacy Policy</a> · <a href="impressum.html">Impressum</a><br>
     © 2026 Sanjay Yadav
   </div>
 </footer>
 
+<script>
+  (function () {
+    if (!("IntersectionObserver" in window)) {
+      document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+    // Safety net: never leave content invisible if the observer misfires.
+    setTimeout(function () {
+      document.querySelectorAll(".reveal:not(.in)").forEach(function (el) { el.classList.add("in"); });
+    }, 1200);
+  })();
+</script>
+<script data-goatcounter="https://dupfinder.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

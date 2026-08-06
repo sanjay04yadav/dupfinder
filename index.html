@@ -40,17 +40,19 @@
       <span>EN</span>
       <a href="de/" onclick="try{localStorage.setItem('df-lang','de')}catch(e){}">DE</a>
     </div>
+    <span id="navprog" aria-hidden="true"></span>
   </div>
 </nav>
 
 <header class="hero">
+  <canvas id="hexfield" aria-hidden="true"></canvas>
   <div class="wrap hero-grid">
     <div>
       <span class="eyebrow"><span class="dot"></span>Free beta open · App Store release soon</span>
       <h1>Find every duplicate.<br><span class="grad">Trust every delete.</span></h1>
       <p class="tagline">DupFinder clears duplicate, similar, blurry, and oversized photos, videos, and files from your iPhone — entirely on your device. Free forever. No subscription. No tracking.</p>
       <div class="cta-row">
-        <a class="cta" href="https://testflight.apple.com/join/9675T9D4">Join the free beta</a>
+        <a class="cta glow" href="https://testflight.apple.com/join/9675T9D4">Join the free beta</a>
         <a class="cta ghost" href="#story">Why it's free →</a>
       </div>
       <p class="cta-note">iOS 17+ · installs in two taps via TestFlight</p>
@@ -66,8 +68,36 @@
           </picture>
         </div>
       </div>
-      <div class="chip-float chip-a">✓ Verified deletes<small>recoverable for 30 days</small></div>
-      <div class="chip-float chip-b">SHA-256 matched<small>byte-for-byte identical</small></div>
+      <div class="pairproof" id="pairproof" aria-hidden="true">
+        <div class="pp-cards">
+          <div class="pp-card pp-1"><img src="assets/pair.jpg" alt=""></div>
+          <div class="pp-card pp-2"><img src="assets/pair.jpg" alt=""></div>
+        </div>
+        <div class="pp-hash"></div>
+        <span class="pp-chip">✓ byte-for-byte identical — keep one</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap scanstrip reveal">
+    <div class="scan-frame">
+      <div class="scan-head">
+        <b>Library scan — live demo</b>
+        <span id="scancount">idle</span>
+        <span class="found" id="scanfound"></span>
+      </div>
+      <div class="scan-row" id="scanrow">
+        <div class="scan-ph"><img src="assets/t1.jpg" alt=""><span class="tag">7a221139…</span></div>
+        <div class="scan-ph"><img src="assets/t2.jpg" alt=""><span class="tag">c41a90ef…</span></div>
+        <div class="scan-ph"><img src="assets/t3.jpg" alt=""><span class="tag">0b77d1a2…</span></div>
+        <div class="scan-ph"><img src="assets/t4.jpg" alt=""><span class="tag">e39f42bb…</span></div>
+        <div class="scan-ph"><img src="assets/t5.jpg" alt=""><span class="tag">7a221139…</span></div>
+        <div class="scan-ph"><img src="assets/t6.jpg" alt=""><span class="tag">918cc0d4…</span></div>
+        <div class="scan-ph"><img src="assets/t7.jpg" alt=""><span class="tag">5d20af71…</span></div>
+        <div class="scan-ph"><img src="assets/t8.jpg" alt=""><span class="tag">ab6631f8…</span></div>
+        <div class="scan-beam" id="scanbeam"></div>
+      </div>
+      <div class="scan-verdict" id="scanverdict">✓ duplicate pair found — same hash 7a221139… · photos 1 &amp; 5 are byte-for-byte identical</div>
     </div>
   </div>
 
@@ -75,8 +105,8 @@
     <div class="stats reveal">
       <div class="stat"><b>0 bytes</b><small>of your data collected — ever</small></div>
       <div class="stat"><b>$0</b><small>forever · no subscription</small></div>
-      <div class="stat"><b>7 tools</b><small>duplicates to compression</small></div>
-      <div class="stat"><b>30 days</b><small>every delete recoverable</small></div>
+      <div class="stat"><b><span data-count="7">7</span> tools</b><small>duplicates to compression</small></div>
+      <div class="stat"><b><span data-count="30">30</span> days</b><small>every delete recoverable</small></div>
     </div>
   </div>
 </header>
@@ -143,11 +173,41 @@
       </div>
     </div>
 
-    <div class="shots reveal" style="margin-top:20px">
-      <div class="shot"><figure>
-        <div class="frame"><img src="assets/home_light.png" loading="lazy" alt="DupFinder home dashboard showing the iPhone storage breakdown and scan results"></div>
-        <figcaption><b>The dashboard</b> — honest storage breakdown</figcaption>
-      </figure></div>
+    <div class="scrolly" style="margin-top:40px">
+      <div class="scrolly-steps" id="scrollysteps">
+        <div class="step active">
+          <div class="kicker">See</div>
+          <h3>One honest dashboard</h3>
+          <p>Your whole storage, broken down truthfully — what the app can clean, what only iOS can, and never a fake "boost" button. The number at the center is what you can actually get back.</p>
+        </div>
+        <div class="step">
+          <div class="kicker">Prove</div>
+          <h3>Duplicates with receipts</h3>
+          <p>Every duplicate group shows its SHA-256 content hash. Same hash, same file — you can verify it yourself. "Keep newest" selects the rest in one tap.</p>
+        </div>
+        <div class="step">
+          <div class="kicker">Decide</div>
+          <h3>Swipe through a month in minutes</h3>
+          <p>Left deletes, right keeps — and nothing is removed until you confirm at the end. Every delete lands in Recently Deleted, recoverable for 30 days.</p>
+        </div>
+      </div>
+      <div class="scrolly-phone">
+        <div class="scrolly-stick">
+          <div>
+            <div class="frame">
+              <div class="frame-screen" id="scrollyscreen">
+                <img class="base show" src="assets/home_light.png" alt="DupFinder dashboard">
+                <img src="assets/exact_light.png" loading="lazy" alt="Exact duplicates with SHA-256 hashes">
+                <img src="assets/swipe_light.png" loading="lazy" alt="Swipe review — keep or delete">
+              </div>
+            </div>
+            <div class="scrolly-dots" id="scrollydots"><span class="on"></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shots reveal" style="margin-top:60px">
       <div class="shot"><figure>
         <div class="frame"><img src="assets/large_light.png" loading="lazy" alt="Large Files screen listing the biggest videos and photos first"></div>
         <figcaption><b>Large files</b> — biggest first, compress in place</figcaption>
@@ -155,6 +215,10 @@
       <div class="shot"><figure>
         <div class="frame"><img src="assets/home_dark.png" loading="lazy" alt="DupFinder home dashboard in dark mode"></div>
         <figcaption><b>Dark mode</b> — first-class, not an afterthought</figcaption>
+      </figure></div>
+      <div class="shot"><figure>
+        <div class="frame"><img src="assets/exact_dark.png" loading="lazy" alt="Exact duplicates screen in dark mode"></div>
+        <figcaption><b>Proof, everywhere</b> — hashes in every theme</figcaption>
       </figure></div>
     </div>
   </div>
@@ -214,24 +278,7 @@
   </div>
 </footer>
 
-<script>
-  (function () {
-    if (!("IntersectionObserver" in window)) {
-      document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.12 });
-    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
-    // Safety net: never leave content invisible if the observer misfires.
-    setTimeout(function () {
-      document.querySelectorAll(".reveal:not(.in)").forEach(function (el) { el.classList.add("in"); });
-    }, 1200);
-  })();
-</script>
+<script src="fx.js"></script>
 <script data-goatcounter="https://dupfinder.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>

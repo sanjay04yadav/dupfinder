@@ -46,6 +46,19 @@ body {
 }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
+/* ── evidence type: monospace carries the "proof" voice ── */
+.mono, .sec-kicker, .eyebrow, .cta-note, th, .stat b, .table-note, .shot figcaption {
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+}
+.sec-kicker, .eyebrow { letter-spacing: .1em; }
+
+/* ── ambient hex field behind the hero ── */
+#hexfield {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: -1;
+}
+header.hero { position: relative; }
+
 /* ── glow ground ── */
 .aurora {
   position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
@@ -157,16 +170,48 @@ h1 .grad {
   text-align: center; font-size: .88rem; color: var(--muted); margin-top: 12px;
 }
 .shot figcaption b { color: var(--fg); }
-.chip-float {
-  position: absolute; background: var(--glass);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  border: 1px solid var(--border); border-radius: 12px;
-  padding: 9px 13px; font-size: .72rem; font-weight: 700; box-shadow: var(--shadow);
+.phone { transition: transform .25s ease; will-change: transform; }
+
+/* ── the signature: two identical photos merge, the hash proves it ── */
+.phone-stage { padding-top: 150px; }
+.pairproof {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 240px; text-align: center; z-index: 2;
 }
-.chip-float small { display: block; font-weight: 500; color: var(--muted); font-size: .64rem; }
-.chip-a { top: 12%; left: 0; }
-.chip-b { bottom: 14%; right: 0; }
-@media (max-width: 860px) { .chip-a { left: 4%; } .chip-b { right: 4%; } }
+.pp-cards { position: relative; height: 96px; }
+.pp-card {
+  position: absolute; top: 0; left: 50%; width: 84px; height: 84px;
+  margin-left: -42px; border-radius: 14px; padding: 5px;
+  background: var(--bg-raise); border: 1px solid var(--border);
+  box-shadow: var(--shadow); transition: transform 1s cubic-bezier(.22,1,.36,1);
+}
+.pp-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; }
+.pp-1 { transform: translateX(-72px) rotate(-7deg); }
+.pp-2 { transform: translateX(72px) rotate(7deg); }
+.pairproof.merge .pp-1, .pairproof.done .pp-1 { transform: translateX(-14px) rotate(-3deg); }
+.pairproof.merge .pp-2, .pairproof.done .pp-2 { transform: translateX(14px) rotate(3deg); }
+.pp-hash {
+  font-family: ui-monospace, Menlo, monospace; font-size: .68rem;
+  color: var(--accent); min-height: 1.2em; margin-top: 4px;
+}
+.pp-chip {
+  display: inline-block; margin-top: 6px; padding: 5px 12px; border-radius: 999px;
+  background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good);
+  font-size: .7rem; font-weight: 700;
+  opacity: 0; transform: scale(.7); transition: opacity .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.pp-chip.on { opacity: 1; transform: scale(1); }
+@media (max-width: 860px) { .phone-stage { padding-top: 160px; } }
+
+/* ── spotlight: cursor-tracked glow on cards ── */
+body.spot .b-card, body.spot .stat { position: relative; overflow: hidden; }
+body.spot .b-card::after, body.spot .stat::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%),
+              color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
+  opacity: 0; transition: opacity .25s ease;
+}
+body.spot .b-card:hover::after, body.spot .stat:hover::after { opacity: 1; }
 
 /* ── stats strip ── */
 .stats {
@@ -287,6 +332,101 @@ details p { margin-top: 10px; color: var(--muted); font-size: .95rem; }
 
 footer { padding: 44px 0 64px; margin-top: 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: .88rem; text-align: center; }
 footer a { color: var(--accent); text-decoration: none; }
+
+/* ── nav scroll progress ── */
+#navprog {
+  position: absolute; left: 0; bottom: -1px; height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width .1s linear;
+}
+
+/* ── animated gradient ring on the primary CTA ── */
+.cta.glow { position: relative; z-index: 0; }
+.cta.glow::before {
+  content: ""; position: absolute; inset: -2px; border-radius: 16px; z-index: -1;
+  background: conic-gradient(from var(--ang, 0deg), var(--accent), var(--accent-2), #35c98e, var(--accent));
+  animation: spin-ring 4s linear infinite;
+  filter: blur(6px); opacity: .7;
+}
+@property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes spin-ring { to { --ang: 360deg; } }
+
+/* ── the scan demo: beam sweeps thumbnails, finds the pair ── */
+.scanstrip { margin-top: 54px; }
+.scan-frame {
+  position: relative; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 18px 18px 14px; box-shadow: var(--shadow);
+}
+.scan-head {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;
+  font-family: ui-monospace, Menlo, monospace; font-size: .78rem; color: var(--muted);
+}
+.scan-head b { color: var(--fg); }
+.scan-head .found { color: var(--good); font-weight: 700; }
+.scan-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; position: relative; }
+@media (max-width: 720px) { .scan-row { grid-template-columns: repeat(4, 1fr); } }
+.scan-ph {
+  position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+  border: 2px solid transparent; transition: border-color .3s ease, transform .3s ease;
+}
+.scan-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scan-ph.lit { border-color: var(--accent); }
+.scan-ph.dup { border-color: var(--good); transform: scale(1.04); }
+.scan-ph .tag {
+  position: absolute; left: 4px; bottom: 4px; right: 4px;
+  font-family: ui-monospace, Menlo, monospace; font-size: .56rem; text-align: center;
+  color: #fff; background: rgba(10, 14, 22, .72); border-radius: 6px; padding: 2px 3px;
+  opacity: 0; transition: opacity .25s ease;
+}
+.scan-ph.dup .tag, .scan-ph:hover .tag { opacity: 1; }
+.scan-beam {
+  position: absolute; top: 0; bottom: 0; width: 3px; left: -2%;
+  background: linear-gradient(180deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 18px 3px color-mix(in srgb, var(--accent) 55%, transparent);
+  opacity: 0; pointer-events: none;
+}
+.scan-verdict {
+  margin-top: 12px; text-align: center; font-size: .8rem; font-weight: 700; color: var(--good);
+  font-family: ui-monospace, Menlo, monospace;
+  opacity: 0; transform: translateY(4px); transition: opacity .4s ease, transform .4s ease;
+}
+.scan-verdict.on { opacity: 1; transform: none; }
+
+/* ── scrollytelling: sticky phone, story on the left ── */
+.scrolly { display: grid; grid-template-columns: 1fr 400px; gap: 48px; }
+@media (max-width: 860px) { .scrolly { grid-template-columns: 1fr; } .scrolly-phone { display: none; } }
+.scrolly-steps { display: flex; flex-direction: column; }
+.step {
+  min-height: 68vh; display: flex; flex-direction: column; justify-content: center;
+  opacity: .25; transition: opacity .4s ease;
+}
+.step.active { opacity: 1; }
+.step .kicker {
+  font-family: ui-monospace, Menlo, monospace; font-size: .78rem; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+}
+.step h3 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 12px; }
+.step p { color: var(--muted); max-width: 420px; }
+.scrolly-phone { position: relative; }
+.scrolly-stick { position: sticky; top: 90px; display: grid; place-items: center; }
+.scrolly-stick .frame {
+  width: 280px; border-radius: 44px; padding: 10px;
+  background: linear-gradient(160deg, #2a2f3a, #10131a);
+  box-shadow: var(--shadow), 0 30px 80px rgba(14, 30, 60, .25);
+}
+.scrolly-stick .frame-screen { border-radius: 36px; overflow: hidden; position: relative; line-height: 0; }
+.scrolly-stick .frame-screen img {
+  width: 100%; height: auto; display: block;
+  position: absolute; inset: 0; opacity: 0; transition: opacity .45s ease;
+}
+.scrolly-stick .frame-screen img.base { position: relative; opacity: 0; }
+.scrolly-stick .frame-screen img.show { opacity: 1; }
+.scrolly-dots { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+.scrolly-dots span {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background .3s ease, transform .3s ease;
+}
+.scrolly-dots span.on { background: var(--accent); transform: scale(1.25); }
 
 /* ── reveal on scroll ── */
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }

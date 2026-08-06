@@ -133,60 +133,166 @@
     }, { passive: true });
   }
 
-  /* ── the scan demo: beam sweeps, duplicates light up ── */
+  /* ── the scan demo: a living replay of the app's pipeline ──
+     phases: hash sweep → compare flicker → match + link line → cleanup → loop */
   var row = document.getElementById("scanrow");
   if (row) {
+    var frame = row.closest(".scan-frame");
     var beam = document.getElementById("scanbeam");
     var verdict = document.getElementById("scanverdict");
     var count = document.getElementById("scancount");
     var foundEl = document.getElementById("scanfound");
-    var phs = row.querySelectorAll(".scan-ph");
+    var phs = Array.prototype.slice.call(row.querySelectorAll(".scan-ph"));
     var DUPS = [0, 4];
-    function resetScan() {
-      phs.forEach(function (p) { p.classList.remove("lit", "dup"); });
-      verdict.classList.remove("on");
-      foundEl.textContent = "";
-      count.textContent = "scanning…";
+    /* rAF when visible; timer fallback so the pipeline never stalls in background tabs */
+    var raf = function (fn) {
+      if (document.hidden) setTimeout(function () { fn(performance.now()); }, 50);
+      else requestAnimationFrame(fn);
+    };
+    var T = {
+      hash:  frame.getAttribute("data-s-hash")  || "hashing library…",
+      cmp:   frame.getAttribute("data-s-cmp")   || "comparing 3,412 hashes…",
+      done:  frame.getAttribute("data-s-done")  || "3,412 photos",
+      clean: frame.getAttribute("data-s-clean") || "cleaning up…",
+      bin:   frame.getAttribute("data-s-bin")   || "→ Recently Deleted",
+      rec:   frame.getAttribute("data-s-rec")   || "recoverable",
+      cPhotos: frame.getAttribute("data-c-photos") || "photos",
+      cGroups: frame.getAttribute("data-c-groups") || "duplicate groups",
+      cFreed:  frame.getAttribute("data-c-freed")  || "freed"
+    };
+
+    /* build the extra chrome once: progress bar, link overlay, stat chips, bin tag */
+    var prog2 = document.createElement("div");
+    prog2.className = "scan-progress"; prog2.innerHTML = "<i></i>";
+    row.parentNode.insertBefore(prog2, row);
+    var progBar = prog2.firstChild;
+    var svgNS = "http://www.w3.org/2000/svg";
+    var link = document.createElementNS(svgNS, "svg");
+    link.setAttribute("id", "scanlink");
+    var path = document.createElementNS(svgNS, "path");
+    link.appendChild(path); row.appendChild(link);
+    var chips = document.createElement("div");
+    chips.className = "scan-chips";
+    chips.innerHTML =
+      '<span><b id="c-ph">0</b> ' + T.cPhotos + "</span>" +
+      '<span><b id="c-gr">0</b> ' + T.cGroups + "</span>" +
+      '<span class="up"><b id="c-mb">0 KB</b> ' + T.cFreed + "</span>";
+    verdict.parentNode.appendChild(chips);
+    var bin = document.createElement("span");
+    bin.className = "bin"; bin.textContent = T.bin;
+    phs[DUPS[1]].appendChild(bin);
+    var cPh = document.getElementById("c-ph"),
+        cGr = document.getElementById("c-gr"),
+        cMb = document.getElementById("c-mb");
+
+    function drawLine() {
+      var r0 = phs[DUPS[0]].getBoundingClientRect();
+      var r1 = phs[DUPS[1]].getBoundingClientRect();
+      var rr = row.getBoundingClientRect();
+      var x0 = r0.left - rr.left + r0.width / 2, y0 = r0.top - rr.top + 6;
+      var x1 = r1.left - rr.left + r1.width / 2, y1 = r1.top - rr.top + 6;
+      var mx = (x0 + x1) / 2, my = Math.min(y0, y1) - 26;
+      path.setAttribute("d", "M" + x0 + " " + y0 + " Q" + mx + " " + my + " " + x1 + " " + y1);
+      link.classList.add("draw");
     }
-    function runScan() {
-      if (reduced) {
-        DUPS.forEach(function (i) { phs[i].classList.add("dup"); });
-        verdict.classList.add("on");
-        count.textContent = "3,412 photos";
-        foundEl.textContent = "1.3 MB recoverable";
-        return;
-      }
-      resetScan();
+    function resetScan() {
+      phs.forEach(function (p) { p.classList.remove("lit", "dup", "cmp", "removed"); });
+      verdict.classList.remove("on");
+      link.classList.remove("draw");
+      foundEl.textContent = "";
+      progBar.style.width = "0";
+      cPh.textContent = "0"; cGr.textContent = "0"; cMb.textContent = "0 KB";
+    }
+    function finalState() {
+      DUPS.forEach(function (i) { phs[i].classList.add("dup"); });
+      verdict.classList.add("on");
+      count.textContent = T.done;
+      foundEl.textContent = "1.3 MB " + T.rec;
+      progBar.style.width = "100%";
+      cPh.textContent = "3,412"; cGr.textContent = "9"; cMb.textContent = "1.3 MB";
+    }
+    function phaseHash(next) {
+      count.textContent = T.hash;
       var t0 = null, DUR = 2600;
       beam.style.opacity = "1";
       function sweep(ts) {
         if (!t0) t0 = ts;
         var p = Math.min((ts - t0) / DUR, 1);
-        var w = row.offsetWidth;
-        beam.style.transform = "translateX(" + (p * (w + 10)) + "px)";
-        count.textContent = Math.round(3412 * p).toLocaleString() + " photos";
+        beam.style.transform = "translateX(" + (p * (row.offsetWidth + 10)) + "px)";
+        progBar.style.width = (p * 100) + "%";
+        cPh.textContent = Math.round(3412 * p).toLocaleString();
         var idx = Math.floor(p * phs.length);
         phs.forEach(function (ph, i) { ph.classList.toggle("lit", i === idx); });
-        if (p < 1) requestAnimationFrame(sweep);
+        if (p < 1) raf(sweep);
         else {
           beam.style.opacity = "0";
           phs.forEach(function (ph) { ph.classList.remove("lit"); });
-          DUPS.forEach(function (i) { phs[i].classList.add("dup"); });
-          verdict.classList.add("on");
-          foundEl.textContent = "1.3 MB recoverable";
-          setTimeout(runScan, 6000);
+          next();
         }
       }
-      requestAnimationFrame(sweep);
+      raf(sweep);
+    }
+    function phaseCompare(next) {
+      count.textContent = T.cmp;
+      var flicks = 7, i = 0;
+      var iv = setInterval(function () {
+        phs.forEach(function (p) { p.classList.remove("cmp"); });
+        if (i >= flicks) { clearInterval(iv); next(); return; }
+        var a = (Math.random() * phs.length) | 0;
+        var b = (Math.random() * phs.length) | 0;
+        phs[a].classList.add("cmp"); phs[b].classList.add("cmp");
+        cGr.textContent = String(Math.min(9, Math.round((i / flicks) * 9)));
+        i++;
+      }, 170);
+    }
+    function phaseMatch(next) {
+      count.textContent = T.done;
+      cGr.textContent = "9";
+      DUPS.forEach(function (i) { phs[i].classList.add("dup"); });
+      drawLine();
+      verdict.classList.add("on");
+      foundEl.textContent = "1.3 MB " + T.rec;
+      setTimeout(next, 1900);
+    }
+    function phaseClean(next) {
+      count.textContent = T.clean;
+      phs[DUPS[1]].classList.add("removed");
+      link.classList.remove("draw");
+      var t0 = null;
+      function tick(ts) {
+        if (!t0) t0 = ts;
+        var p = Math.min((ts - t0) / 900, 1);
+        cMb.textContent = (1.3 * p).toFixed(1) + " MB";
+        if (p < 1) raf(tick); else next();
+      }
+      raf(tick);
+    }
+    function runScan() {
+      if (reduced) { resetScan(); finalState(); return; }
+      resetScan();
+      phaseHash(function () {
+        phaseCompare(function () {
+          phaseMatch(function () {
+            phaseClean(function () {
+              setTimeout(runScan, 3800);
+            });
+          });
+        });
+      });
+    }
+    var started = false;
+    function startOnce() {
+      if (!started) { started = true; runScan(); }
     }
     if ("IntersectionObserver" in window) {
-      var started = false;
       new IntersectionObserver(function (es, obs) {
         es.forEach(function (e) {
-          if (e.isIntersecting && !started) { started = true; setTimeout(runScan, 400); obs.disconnect(); }
+          if (e.isIntersecting && !started) { obs.disconnect(); setTimeout(startOnce, 400); }
         });
       }, { threshold: 0.4 }).observe(row);
-    } else runScan();
+      /* safety net: never leave the demo idle if the observer can't fire */
+      setTimeout(startOnce, 4000);
+    } else startOnce();
   }
 
   /* ── scrollytelling: sticky phone swaps screens per step ── */

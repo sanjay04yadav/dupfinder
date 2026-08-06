@@ -393,6 +393,45 @@ footer a { color: var(--accent); text-decoration: none; }
 }
 .scan-verdict.on { opacity: 1; transform: none; }
 
+/* scan demo: living-pipeline additions */
+.scan-progress {
+  height: 3px; border-radius: 2px; background: var(--card-2);
+  margin: 0 0 14px; overflow: hidden;
+}
+.scan-progress i {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.scan-ph::before {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.4) 50%, transparent 62%);
+  transform: translateX(-130%);
+}
+.scan-ph.lit::before { animation: ph-shimmer .5s ease; }
+@keyframes ph-shimmer { to { transform: translateX(130%); } }
+.scan-ph.cmp { border-color: var(--accent-2); }
+.scan-ph.removed { opacity: .35; transform: scale(.82); filter: grayscale(1); }
+.scan-ph .bin {
+  position: absolute; top: 4px; left: 4px; right: 4px; z-index: 2;
+  font-family: ui-monospace, Menlo, monospace; font-size: .54rem; text-align: center;
+  color: #fff; background: rgba(10, 14, 22, .78); border-radius: 6px; padding: 2px 3px;
+  opacity: 0; transition: opacity .3s ease;
+}
+.scan-ph.removed .bin { opacity: 1; }
+#scanlink { position: absolute; inset: 0; pointer-events: none; z-index: 2; width: 100%; height: 100%; }
+#scanlink path {
+  stroke: var(--good); stroke-width: 2; fill: none;
+  stroke-dasharray: 600; stroke-dashoffset: 600; stroke-linecap: round;
+}
+#scanlink.draw path { animation: drawlink .8s ease forwards; }
+@keyframes drawlink { to { stroke-dashoffset: 0; } }
+.scan-chips {
+  display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 12px;
+  font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--muted);
+}
+.scan-chips b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.scan-chips .up b { color: var(--good); }
+
 /* ── scrollytelling: sticky phone, story on the left ── */
 .scrolly { display: grid; grid-template-columns: 1fr 400px; gap: 48px; }
 @media (max-width: 860px) { .scrolly { grid-template-columns: 1fr; } .scrolly-phone { display: none; } }

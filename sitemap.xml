@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://getdupfinder.com/</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://getdupfinder.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://getdupfinder.com/"/>
+  </url>
+  <url>
+    <loc>https://getdupfinder.com/de/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://getdupfinder.com/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://getdupfinder.com/de/"/>
+  </url>
+  <url><loc>https://getdupfinder.com/privacy.html</loc></url>
+  <url><loc>https://getdupfinder.com/de/privacy.html</loc></url>
+  <url><loc>https://getdupfinder.com/impressum.html</loc></url>
+</urlset>
